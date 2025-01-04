@@ -11,7 +11,7 @@
                 margin: 0;
                 overflow: hidden;
                 font-family: Arial, sans-serif;
-                background: radial-gradient(circle, #1a1a2e, #000000); /* фоновый градиент */
+                background: radial-gradient(circle, #1a1a2e, #000000);
                 color: white;
             }
 
@@ -24,10 +24,11 @@
                 position: fixed;
                 top: 0;
                 width: 100%;
-                z-index: 10;  /* Навигация останется наверху */
+                z-index: 1;
             }
 
             li {
+                font-family: Verdana;
                 float: left;
             }
 
@@ -45,14 +46,14 @@
 
             .container {
                 position: relative;
-                z-index: 1;  /* Контент будет отображаться поверх фона */
-                padding-top: 60px;  /* Для того, чтобы контент не загораживался навигацией */
+                padding-top: 60px;
             }
         </style>
     {% endblock %}
 </head>
 <body>
     <ul>
+        <li style="float: left"><a class="active" href="{% url 'authenticated' %}">К заказам</a></li>
         <li style="float: right"><a href="javascript:void(0);" onclick="logout()">Выйти</a></li>
         <li style="float: left"><a class="active" href="{% url 'create_order' %}">Создать заказ</a></li>
     </ul>

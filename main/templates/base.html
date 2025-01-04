@@ -11,7 +11,7 @@
                 margin: 0;
                 overflow: hidden;
                 font-family: Arial, sans-serif;
-                background: radial-gradient(circle, #1a1a2e, #000000); /* фоновый градиент */
+                background: radial-gradient(circle, #1a1a2e, #000000);
                 color: white;
             }
 
@@ -24,10 +24,11 @@
                 position: fixed;
                 top: 0;
                 width: 100%;
-                z-index: 10;  /* Навигация останется наверху */
+                z-index: 10;
             }
 
             li {
+                font-family: Verdana;
                 float: left;
             }
 
@@ -52,6 +53,7 @@
 </head>
 <body>
     <ul>
+        <li style="float: left"><a class="active" href="{% url 'base' %}">К заказам</a></li>
         <li style="float: right"><a class="active" href="{% url 'register' %}">Зарегистрироваться</a></li>
         <li style="float: left"><a class="active" href="{% url 'login' %}">Войти</a></li>
         <li style="float: right"><a class="active" href="{% url 'about_us' %}">О нас</a></li>

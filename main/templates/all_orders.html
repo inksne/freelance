@@ -1,6 +1,5 @@
-{% extends 'base.html' %}
-
-<title>Главная</title>
+{% extends "authenticated.html" %}
+<title>Все заказы</title>
 
 {% block styles %}
     {{ block.super }}
@@ -68,13 +67,34 @@
                     <p class="customer">Заказчик: {{ order.customer }}</p>
                     <p>Категория: {{ order.category }}</p>
                     <p>Описание: {{ order.description }}</p>
-                    <p>Прикреплённые файлы: Войдите или зарегистрируйтесь для просмотра вложений.</p>
+                    {% if order.attachment %}
+                        <p>Прикреплённые файлы: <a href="{{ order.attachment.url }}" download>{{ order.attachment.name }}</a></p>
+                    {% else %}
+                        <p>Прикреплённые файлы: нет</p>
+                    {% endif %}
                     <p class="deployed_at">Дата публикации: {{ order.created_at }}</p>
+                    {% if not order.customer == request.user %}
+                        <a href="{% url 'add_response' order.id %}">Откликнуться на заказ</a>
+                    {% endif %}
                     <p>Откликов: {{ order.response_count }}</p>
+                    {% if order.customer == request.user %}
+                        {% if order.responses_list %}
+                            <h3>Отклики:</h3>
+                            {% for response in order.responses_list %}
+                            <div class="response-item">
+                                <strong>{{ response.user.username }}</strong>: {{ response.message }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
                 </div>
             {% endfor %}
         {% else %}
             <h2 style="text-align: center;">Нет доступных заказов.</h2>
         {% endif %}
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
 {% endblock %}
