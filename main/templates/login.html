@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+<title>Логин</title>
+{% block styles %}
+    {{ block.super }} 
+    <style>
+        .login-container {
+            position: absolute;
+            top: 600%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0);
+            padding: 2em;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            margin-bottom: 1em;
+            text-align: center;
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 2em;
+            text-align: left;
+            position: relative; /* Для позиционирования иконки */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            color: white;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 7px;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0);
+            color: white;
+            border: 2px solid #888;
+        }
+
+        .password-toggle-icon {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            font-size: 20px;
+        }
+
+        button {
+            padding: 0.8em 2em;
+            background-color: rgba(0, 0, 0, 0);
+            color: white;
+            border: 2px solid #888;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+            margin: 0 auto;
+            display: block;
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .register-link p {
+            margin-top: 1em;
+            color: whitesmoke;
+        }
+
+        .register-link a {
+            color: #00bcd4;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="login-container">
+        <h1>Вход</h1>
+        <form id="loginForm" method="post">
+            <div class="input-group">
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+                <span class="toggle-password" id="togglePassword">&#128065;</span> 
+            </div>
+            <div>
+                <button type="submit">Войти</button>
+            </div>
+        </form>
+        <div class="register-link">
+            <p>Нет аккаунта? <a href="/register">Зарегистрируйтесь</a></p>
+        </div>
+        <div id="error-message" class="error-message"></div>
+    </div>
+{% endblock %}
+
+<script>
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordField = document.getElementById('password');
+
+    togglePassword.addEventListener('click', function () {
+        const type = passwordField.type === 'password' ? 'text' : 'password';
+        passwordField.type = type;
+
+        this.textContent = type === 'password' ? '👁️' : '🔒';  
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); 
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        try {
+            const response = await fetch('/login/', {
+                method: 'POST',
+                body: formData, 
+                credentials: 'include' 
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                window.location.href = '/authenticated/';
+            } else {
+                document.getElementById('error-message').textContent = result.detail || 'Ошибка входа';
+                document.getElementById('error-message').style.display = 'block';
+            }
+        } catch (error) {
+            document.getElementById('error-message').textContent = 'Ошибка при подключении к серверу';
+            document.getElementById('error-message').style.display = 'block';
+        }
+    });
+</script>
