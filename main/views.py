@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.db.models import Q
+
 from rest_framework import generics
 from rest_framework.views import APIView, View
 from rest_framework.response import Response
@@ -9,13 +11,11 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.pagination import PageNumberPagination
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.renderers import JSONRenderer
+
 from .serializers import RegisterSerializer
 from .decorators import jwt_required
-from .forms import OrderForm
-
-
-async def BaseView(request):
-    return render(request, 'index.html')
+from .forms import OrderForm, ResponseForm
+from .models import Order
 
 
 async def AboutUsView(request):
@@ -38,10 +38,6 @@ class RegisterView(generics.ListCreateAPIView):
             return redirect('/login/')
         print(serializer.errors)
         return Response(serializer.errors, status=400)
-    
-
-async def AuthView(request):
-    return render(request, 'authenticated.html')
 
 
 @method_decorator(jwt_required, name='dispatch')
@@ -66,4 +62,48 @@ class AddOrderView(View):
             return redirect('/authenticated/')
 
         return render(request, self.template_name, {'form': form})
+    
 
+def OrdersView(request):
+    orders = Order.objects.all()
+    for order in orders:
+        order.response_count = order.responses.count()
+    return render(request, 'index.html', {'orders': orders})
+
+
+@jwt_required
+def AuthOrdersView(request):
+    if not request.user.is_authenticated:
+        return redirect('/login/')
+
+    orders = Order.objects.all()
+    for order in orders:
+        order.response_count = order.responses.count()
+        if order.customer == request.user:
+            order.responses_list = order.responses.all()
+        else:
+            order.responses_list = None
+
+    return render(request, 'all_orders.html', {'orders': orders})
+
+
+@jwt_required
+def AddResponse(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.responses.filter(user=request.user).exists():
+        messages.info(request, "Вы уже откликнулись на этот заказ.")
+        return redirect('authenticated')
+
+    if request.method == 'POST':
+        form = ResponseForm(request.POST)
+        if form.is_valid():
+            response = form.save(commit=False)
+            response.order = order
+            response.user = request.user
+            response.save()
+            return redirect('authenticated')
+    else:
+        form = ResponseForm()
+
+    return render(request, 'add_response.html', {'form': form, 'order': order})
