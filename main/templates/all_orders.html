@@ -54,6 +54,23 @@
         .order-card .deployed_at {
             font-style: italic;
         }
+
+        .delete-button {
+            background-color: transparent;
+            border: 2px solid #888;
+            font-size: 1rem;
+            padding: 0.5em 1.5em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            text-align: center;
+            display: inline-block;
+            color: white;
+        }
+
+        .delete-button:active {
+            transform: scale(0.98);
+        }
     </style>
 {% endblock %}
 
@@ -64,7 +81,7 @@
             {% for order in orders %}
                 <div class="order-card">
                     <h2>{{ order.name }}</h2>
-                    <p class="customer">Заказчик: {{ order.customer }}</p>
+                    <p class="customer">Заказчик: <a href="{% url 'user_profile' order.customer.id %}">{{ order.customer.username }}</a></p>
                     <p>Категория: {{ order.category }}</p>
                     <p>Описание: {{ order.description }}</p>
                     {% if order.attachment %}
@@ -78,11 +95,19 @@
                     {% endif %}
                     <p>Откликов: {{ order.response_count }}</p>
                     {% if order.customer == request.user %}
+                        <form method="POST" action="{% url 'delete_order' order.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-button">Удалить заказ</button>
+                        </form>
                         {% if order.responses_list %}
                             <h3>Отклики:</h3>
                             {% for response in order.responses_list %}
                             <div class="response-item">
-                                <strong>{{ response.user.username }}</strong>: {{ response.message }}
+                                <strong>
+                                    <a href="{% url 'user_profile' response.user.id %}">
+                                        {{ response.user.username }}
+                                    </a>
+                                </strong>: {{ response.message }}
                             </div>
                             {% endfor %}
                         {% endif %}

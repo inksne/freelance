@@ -1,0 +1,153 @@
+{% extends "authenticated.html" %}
+<title>Профиль {{ user.username }}</title>
+
+{% block styles %}
+    {{ block.super }}
+    <style>
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            font-family: Verdana;
+            color: white;
+            background-color: rgba(0, 0, 0, 0);
+            border: 2px solid #888;
+            padding: 12px;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 1em;
+            margin-bottom: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .form-group label {
+            color: white;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        button {
+            padding: 0.8em 2em;
+            background-color: rgba(0, 0, 0, 0);
+            color: white;
+            border: 2px solid #888;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0);
+            border-radius: 10px;
+        }
+
+        .reviews-container {
+            width: 48%;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .form-container {
+            width: 48%;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+        }
+
+        .review {
+            background-color: rgba(0, 0, 0, 0);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 2px solid #888;
+        }
+
+        .review p {
+            margin-bottom: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="reviews-container">
+            <h1>{{ user.username }}</h1>
+            <p>Email: {{ user.email }}</p>
+            <p>Дата регистрации: {{ user.date_joined }}</p>
+
+            <h2>Отзывы:</h2>
+            {% if reviews %}
+                {% for review in reviews %}
+                    <div class="review">
+                        <p>Рейтинг: {{ review.rating }}</p>
+                        <p>Отзыв: {{ review.message }}</p>
+                        <p>Оставлен: {{ review.created_at }}</p>
+                    </div>
+                    {% if review.reviewer == request.user %}
+                        <form method="POST" action="{% url 'delete_review' review.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-button">Удалить отзыв</button>
+                        </form>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <p>Нет отзывов.</p>
+            {% endif %}
+        </div>
+
+        <div class="form-container">
+            {% if can_leave_review %}
+                <h2>Оставить отзыв:</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_rating">Рейтинг</label>
+                        {{ form.rating }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_message">Сообщение</label>
+                        {{ form.message }}
+                    </div>
+                    <button type="submit">Оставить отзыв</button>
+                </form>
+            {% else %}
+                <p>Вы не можете оставить отзыв этому пользователю.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+{% endblock %}

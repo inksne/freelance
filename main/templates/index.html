@@ -55,12 +55,24 @@
         .order-card .deployed_at {
             font-style: italic;
         }
+
+        h1 {
+            text-align: center;
+        }
+
+        h3 {
+            text-align: center;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
+    <h1>Добро пожаловать на нашу фрилансовую биржу!</h1>
+    <h3>Здесь вы можете найти заказы на любую категорию.</h3>
+    <h3>Также вы можете найти специалиста для выполнения уже ваших прихотей.</h3>
+    <h3>Все абсолютно бесплатно и ограничивается только простором ваших фантазий.</h3>
     <div class="container">
-        <h1 style="text-align: center;">Все заказы</h1>
+        <h1>Все заказы</h1>
         {% if orders %}
             {% for order in orders %}
                 <div class="order-card">
