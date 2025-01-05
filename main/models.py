@@ -21,7 +21,7 @@ class Order(models.Model):
         return self.name
     
 
-class Response(models.Model):
+class OrderResponse(models.Model):
     order = models.ForeignKey(Order, related_name='responses', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='responses', on_delete=models.CASCADE)
     message = models.CharField(max_length=80)
@@ -29,3 +29,14 @@ class Response(models.Model):
 
     def __str__(self):
         return f"Отклик от {self.user.username} на заказ {self.order.name}"
+    
+
+class Review(models.Model):
+    reviewer = models.ForeignKey(User, related_name='reviews_given', on_delete=models.CASCADE)
+    reviewed_user = models.ForeignKey(User, related_name='reviews_received', on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')])
+    message = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Отзыв от {self.reviewer.username} для {self.reviewed_user.username}"
