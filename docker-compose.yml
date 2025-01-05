@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   back:
-    image: inksne/lib-back-image:latest
+    image: inksne/fl-back-image:latest
     container_name: back-container
     build:
       context: .
