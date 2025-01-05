@@ -16,7 +16,6 @@ jobs:
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASS: ${{ secrets.DB_PASS }}
       DB_NAME: ${{ secrets.DB_NAME }}
-      PORT: ${{ secrets.PORT }}
     
     steps:
       - name: Check out repository
