@@ -2,20 +2,17 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils.decorators import method_decorator
-from django.db.models import Q
+from django.http import HttpResponseForbidden
 
 from rest_framework import generics
-from rest_framework.views import APIView, View
+from rest_framework.views import View
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.pagination import PageNumberPagination
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.renderers import JSONRenderer
 
 from .serializers import RegisterSerializer
 from .decorators import jwt_required
-from .forms import OrderForm, ResponseForm
-from .models import Order
+from .forms import OrderForm, ResponseForm, ReviewForm
+from .models import Order, Review, OrderResponse
 
 
 async def AboutUsView(request):
@@ -64,6 +61,15 @@ class AddOrderView(View):
         return render(request, self.template_name, {'form': form})
     
 
+@jwt_required
+def DeleteOrderView(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if order.customer != request.user:
+        return HttpResponseForbidden("Вы не можете удалить этот заказ.")
+    order.delete()
+    return redirect('/authenticated/')
+    
+
 def OrdersView(request):
     orders = Order.objects.all()
     for order in orders:
@@ -107,3 +113,48 @@ def AddResponse(request, order_id):
         form = ResponseForm()
 
     return render(request, 'add_response.html', {'form': form, 'order': order})
+
+
+@jwt_required
+def MyProfileView(request):
+    if not request.user.is_authenticated:
+        return redirect('/login/')
+    
+    user = request.user
+    reviews = Review.objects.filter(reviewed_user=user)
+    return render(request, 'profile.html', {'user': user, 'reviews': reviews})
+
+
+@jwt_required
+def UserProfileView(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    reviews = Review.objects.filter(reviewed_user=user)
+
+    can_leave_review = True
+
+    if request.method == 'POST' and can_leave_review:
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            form.instance.reviewer = request.user
+            form.instance.reviewed_user = user
+            form.save()
+            messages.success(request, "Отзыв успешно оставлен!")
+            return redirect('user_profile', user_id=user.id)
+    else:
+        form = ReviewForm()
+
+    return render(request, 'profile.html', {
+        'user': user,
+        'form': form,
+        'reviews': reviews,
+        'can_leave_review': can_leave_review,
+    })
+
+
+@jwt_required
+def DeleteReviewView(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    if review.reviewer != request.user:
+        return HttpResponseForbidden("Вы не можете удалить этот отзыв")
+    review.delete()
+    return redirect('/authenticated/')
