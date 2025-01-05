@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install --upgrade pip && pip install -r requirements.txt && pip install pytest
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
 
