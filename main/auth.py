@@ -11,24 +11,23 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class CustomJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
-        # Извлекаем токен из cookies
         token = request.COOKIES.get('access_token')
         
         if not token:
             raise AuthenticationFailed("Токен отсутствует")
 
         try:
-            # Пытаемся аутентифицировать пользователя
             validated_token = self.get_validated_token(token)
             user = self.get_user(validated_token)
         except Exception as e:
             raise AuthenticationFailed(f"Ошибка аутентификации: {e}")
 
-        return (user, validated_token)  # Возвращаем пользователя и токен
+        return (user, validated_token) 
 
 
 class LoginAPIView(APIView):
     renderer_classes = [JSONRenderer]
+    
     def get(self, request, *args, **kwargs):
         return render(request, 'login.html')    
 
@@ -56,17 +55,17 @@ class LoginAPIView(APIView):
                 samesite="Lax",
             )
             
-
             response.data['csrf_token'] = get_token(request)
             response['Location'] = '/authenticated/'
             response.status_code = 302
             return response
 
-        return Response({"error": "Невалидные данные"}, status=401)
+        return render(request, 'login.html', {'error': 'Невалидные данные'})
     
 
 class LogoutAPIView(APIView):
     renderer_classes = [JSONRenderer]
+
     def post(self, request, *args, **kwargs):
         response = Response({"message": "Успешный выход"})
         
@@ -77,6 +76,7 @@ class LogoutAPIView(APIView):
 
 class RefreshAccessTokenAPIView(APIView):
     renderer_classes = [JSONRenderer]
+
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
