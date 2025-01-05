@@ -52,7 +52,7 @@ jobs:
           docker pull inksne/fl-back-image:latest
 
       - name: Run tests
-        run: docker run -e DB_NAME=${{ secrets.DB_NAME }} -e DB_USER=${{ secrets.DB_USER }} -e DB_PASS=${{ secrets.DB_PASS }} --rm inksne/lib-back-image pytest -v -s
+        run: docker run -e DB_NAME=${{ secrets.DB_NAME }} -e DB_USER=${{ secrets.DB_USER }} -e DB_PASS=${{ secrets.DB_PASS }} --rm inksne/fl-back-image pytest -v -s
 
   # deploy:
   #   runs-on: ubuntu-latest
