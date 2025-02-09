@@ -8,7 +8,7 @@ from .models import Category, Order
 
 import pytest
 
-@pytest.mark.skip(reason='не будет работать, т.к. нужна связь с бд, а бд нужно отдельно деплоить.')
+@pytest.mark.skip()
 class TestAPIViews(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='password123', email='testuser@mail.com')
